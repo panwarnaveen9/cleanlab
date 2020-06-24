@@ -1,14 +1,24 @@
 .. figure:: https://raw.githubusercontent.com/cgnorthcutt/cleanlab/master/img/cleanlab_logo.png
+   :target: https://github.com/cgnorthcutt/cleanlab/
    :align: center
    :alt: cleanlab 
 
 |  
 
-``cleanlab`` is a machine learning python package for **learning with noisy labels** and **finding label errors in datasets**. ``cleanlab`` CLEANs LABels.
+``cleanlab`` is a machine learning python package for **learning with noisy labels** and **finding label errors in datasets**. ``cleanlab`` CLEANs LABels. It is powered by the theory of **confident learning**, published in this `paper <https://arxiv.org/abs/1911.00068>`__ |  `blog <https://l7.curtisnorthcutt.com/confident-learning>`__. 
 
-|pypi| |py_versions| |build_status| |coverage|
+****
+
+* **News! (Jan 2020)** `cleanlab` achieves state-of-the-art on CIFAR-10 for learning with noisy labels. Code to reproduce is here:  `examples/cifar10 <https://github.com/cgnorthcutt/cleanlab/tree/master/examples/cifar10>`__. This is a great place for newcomers to see how to use cleanlab on real datasets. Data needed is available in the `confidentlearning-reproduce <https://github.com/cgnorthcutt/confidentlearning-reproduce>`__ repo, ``cleanlab`` v0.1.0 reproduces results in `the CL paper <https://arxiv.org/abs/1911.00068>`__.
+* **News! (Feb 2020)**  `cleanlab` now natively supports Mac, Linux, and Windows.
+* **News! (Feb 2020)**  `cleanlab` now supports `Co-Teaching <https://github.com/cgnorthcutt/cleanlab/blob/master/cleanlab/coteaching.py>`__  `(Han et al., 2018) <https://arxiv.org/abs/1804.06872>`__.
+
+
+|pypi| |os| |py_versions| |build_status| |coverage|
 
 .. |pypi| image:: https://img.shields.io/pypi/v/cleanlab.svg
+    :target: https://pypi.org/pypi/cleanlab/
+.. |os| image:: https://img.shields.io/badge/platform-windows%20%7C%20macos%20%7C%20linux-lightgrey
     :target: https://pypi.org/pypi/cleanlab/
 .. |py_versions| image:: https://img.shields.io/pypi/pyversions/cleanlab.svg
     :target: https://pypi.org/pypi/cleanlab/
@@ -17,54 +27,88 @@
 .. |coverage| image:: https://codecov.io/gh/cgnorthcutt/cleanlab/branch/master/graph/badge.svg
     :target: https://codecov.io/gh/cgnorthcutt/cleanlab
 
-``cleanlab``  finds and cleans label errors in any dataset using state-of-the-art algorithms for learning with noisy labels and estimating the complete joint distribution of label noise. ``cleanlab`` is fast: its built on optimized algorithms and parallelized across all CPU threads automatically. ``cleanlab`` implements the family of theory and algorithms called **confident learning** with provable guarantees of exact noise estimation and label error finding (when model output probabilities are exact). 
+``cleanlab`` **documentation** is available in `this blog post <https://l7.curtisnorthcutt.com/cleanlab-python-package>`__.
 
+Past release notes and **future features planned**  is available `here <https://github.com/cgnorthcutt/cleanlab/blob/master/cleanlab/version.py>`__.
 
-Its called ``cleanlab`` because it CLEANs LABels. 
--------------------------------------------------
+So fresh, so ``cleanlab`` 
+=========================
+
+``cleanlab`` finds and cleans label errors in any dataset using `state-of-the-art algorithms <https://arxiv.org/abs/1911.00068>`__ to find label errors, characterize noise, and learn in spite of it. ``cleanlab`` is fast: its built on optimized algorithms and parallelized across CPU threads automatically. ``cleanlab`` is powered by `provable guarantees <https://arxiv.org/abs/1911.00068>`__ of exact noise estimation and label error finding in realistic cases when model output probabilities are erroneous. ``cleanlab`` supports multi-label, multiclass, sparse matrices, etc. By default, ``cleanlab`` requires no hyper-parameters.
+
+``cleanlab`` finds and cleans label errors in any dataset using state-of-the-art algorithms for learning with noisy labels by characterizing label noise. ``cleanlab`` is fast: its built on optimized algorithms and parallelized across CPU threads automatically. ``cleanlab`` implements the family of theory and algorithms called `confident learning <https://arxiv.org/abs/1911.00068>`__ with provable guarantees of exact noise estimation and label error finding (even when model output probabilities are noisy/imperfect). 
+
+**How does confident learning work?** See:  `TUTORIAL: confident learning with just numpy and for-loops <https://github.com/cgnorthcutt/cleanlab/blob/master/examples/simplifying_confident_learning_tutorial.ipynb>`__.
+
+``cleanlab`` supports most weak supervision tasks: multi-label, multiclass, sparse matrices, etc. 
 
 ``cleanlab`` is:
 
-1. fast - **runs in parallel on all CPU threads automatically**. (e.g. < 1 second to find label errors in ImageNet)
-2. robust - Provable generalization and risk minimimzation guarantees, including imperfect probability estimation.
-3. general - Works with any probablistic classifier: PyTorch, Tensorflow, MxNet, Caffe2, scikit-learn, etc.
-4. unique - The only package for multiclass learning with noisy labels or finding label errors for any dataset / classifier.
+1. backed-by-theory - Provable perfect label error finding in realistic conditions.
+2. fast - Non-iterative, parallelized algorithms (e.g. < 1 second to find label errors in ImageNet)
+3. general - Works with any ML or deep learning framework: PyTorch, Tensorflow, MxNet, Caffe2, scikit-learn, etc.
+4. unique - The only package for weak supervion with any dataset / classifier.
+
+
+Find label errors with PyTorch, Tensorflow, MXNet, etc. in 1 line of code.
+==========================================================================
+
+.. code:: python
+
+   # Compute psx (n x m matrix of predicted probabilities) on your own, with any classifier.
+   # Here is an example that shows in detail how to compute psx on CIFAR-10:
+   #    https://github.com/cgnorthcutt/cleanlab/tree/master/examples/cifar10
+   # Be sure you compute probs in a holdout/out-of-sample manner (e.g. cross-validation)
+   # Now getting label errors is trivial with cleanlab... its one line of code.
+   # Label errors are ordered by likelihood of being an error. First index is most likely error.
+   from cleanlab.pruning import get_noise_indices
+
+   ordered_label_errors = get_noise_indices(
+       s=numpy_array_of_noisy_labels,
+       psx=numpy_array_of_predicted_probabilities,
+       sorted_index_method='normalized_margin', # Orders label errors
+    )
+
+Pre-computed out-of-sample predicted probabilities for CIFAR-10 train set are available here: [`[LINK] <https://github.com/cgnorthcutt/cleanlab/tree/master/examples/cifar10>`__].
+   
+Learning with noisy labels in 3 lines of code!
+==============================================
    
 .. code:: python
    
    from cleanlab.classification import LearningWithNoisyLabels
    from sklearn.linear_model import LogisticRegression
-   
-   # Learning with noisy labels in 3 lines of code!
-   
+
    # Wrap around any classifier. Yup, you can use sklearn/pyTorch/Tensorflow/FastText/etc.
    lnl = LearningWithNoisyLabels(clf=LogisticRegression()) 
-   lnl.fit(X = X_train_data, s = train_noisy_labels) 
+   lnl.fit(X=X_train_data, s=train_noisy_labels) 
    # Estimate the predictions you would have gotten by training with *no* label errors.
    predicted_test_labels = lnl.predict(X_test)
 
+
 Check out these `examples <https://github.com/cgnorthcutt/cleanlab/tree/master/examples>`__ and `tests <https://github.com/cgnorthcutt/cleanlab/tree/master/tests>`__ (includes how to use pyTorch, FastText, etc.).
 
-Installation
-------------
 
-Python 2.7, 3.4, 3.5, and 3.6 are supported.
+Installation
+============
+
+Python 2.7, 3.4, 3.5, 3.6, and 3.7 are supported. Linix, MacOS, and Windows are supported.
 
 Stable release:
 
-.. code-block::
+.. code-block:: bash
 
    $ pip install cleanlab
 
 Developer (unstable) release:
 
-.. code-block::
+.. code-block:: bash
 
    $ pip install git+https://github.com/cgnorthcutt/cleanlab.git
 
 To install the codebase (enabling you to make modifications):
 
-.. code-block::
+.. code-block:: bash
 
    $ conda update pip # if you use conda
    $ git clone https://github.com/cgnorthcutt/cleanlab.git
@@ -73,12 +117,24 @@ To install the codebase (enabling you to make modifications):
 
 
 Citations and Related Publications
-----------------------------------
+==================================
 
-Although this package goes far beyond our 2017 publication, if you find
-this repository helpful, please cite our paper
-http://auai.org/uai2017/proceedings/papers/35.pdf. New papers will be
-posted here when they are published.
+If you use this package in your work, please cite the `confident learning paper <https://arxiv.org/abs/1911.00068>`__:
+
+::
+
+   @misc{northcutt2019confidentlearning,
+     title={Confident Learning: Estimating Uncertainty in Dataset Labels},
+     author={Curtis G. Northcutt and Lu Jiang and Isaac L. Chuang},
+     year={2019},
+     eprint={1911.00068},
+     archivePrefix={arXiv},
+     primaryClass={stat.ML}
+ }
+
+
+
+If used for binary classification, cleanlab also implements `this paper <https://arxiv.org/abs/1705.01936>`__:
 
 ::
 
@@ -94,33 +150,61 @@ posted here when they are published.
     publisher = {AUAI Press},
    } 
 
-Collaboration
-~~~~~~~~~~~~~
+Reproducing Results in  `confident learning paper <https://arxiv.org/abs/1911.00068>`__ 
+=======================================================================================
 
-Most of the algorithms, theory, and results of ``cleanlab`` remain unpublished. If you'd like to work together, please reach out. 
+See `cleanlab/examples/cifar10 <https://github.com/cgnorthcutt/cleanlab/tree/master/examples/cifar10>`__ and  `cleanlab/examples/imagenet <https://github.com/cgnorthcutt/cleanlab/tree/master/examples/imagenet>`__. You'll need to ``git clone`` `confidentlearning-reproduce <https://github.com/cgnorthcutt/confidentlearning-reproduce>`__  which contains the data and files needed to reproduce the CIFAR-10 results.
 
-``cleanlab`` on MNIST
----------------------
 
-We use ``cleanlab`` to automatically identify ~50 label errors in the MNIST dataset. 
+``cleanlab``: State of the Art Learning with Noisy Labels in CIFAR
+------------------------------------------------------------------
+
+
+A [`step-by-step guide <https://github.com/cgnorthcutt/cleanlab/tree/master/examples/cifar10>`__] to reproduce these results is available [`here <https://github.com/cgnorthcutt/cleanlab/tree/master/examples/cifar10>`__]. This guide is also helpful as a tutorial to use cleanlab on any large-scale dataset.
+
+.. figure:: https://raw.githubusercontent.com/cgnorthcutt/cleanlab/master/img/cifar10_benchmarks.png
+   :align: center
+   :alt: Image depicting CIFAR10 benchmarks 
+
+Comparison of confident learning (CL) and `cleanlab` versus seven recent methods for learning with noisy labels in CIFAR-10. Highlighted cells show CL robustness to sparsity. The five CL methods estimate label errors, remove them, then train on the cleaned data using `Co-Teaching <https://github.com/cgnorthcutt/cleanlab/blob/master/cleanlab/coteaching.py>`__.
+
+Observe how cleanlab (CL methods) are robust to large sparsity in label noise whereas prior art tends to reduce in performance for increased sparsity, as shown by the red highlighted regions. This is important because real-world label noise is often sparse, e.g. a tiger is likely to be mislabeled as a lion, but not as most other classes like airplane, bathtub, and microwave.
+
+``cleanlab``: Find Label Errors in ImageNet
+-------------------------------------------
+
+Use ``cleanlab`` to identify ~100,000 label errors in the 2012 ImageNet training dataset. 
+
+.. figure:: https://raw.githubusercontent.com/cgnorthcutt/cleanlab/master/img/imagenet_train_label_errors_32.jpg
+   :align: center
+   :alt: Image depicting label errors in ImageNet train set 
+
+Top label issues in the 2012 ILSVRC ImageNet train set identified using ``cleanlab``. Label Errors are boxed in red. Ontological issues in green. Multi-label images in blue.
+
+``cleanlab``: Find Label Errors in MNIST
+----------------------------------------
+
+Use ``cleanlab`` to identify ~50 label errors in the MNIST dataset. 
 
 .. figure:: https://raw.githubusercontent.com/cgnorthcutt/cleanlab/master/img/mnist_training_label_errors24_prune_by_noise_rate.png
    :align: center
    :alt: Image depicting label errors in MNIST train set 
 
-Label errors of the original MNIST **train** dataset identified algorithmically using the rankpruning algorithm. Depicts the 24 least confident labels, ordered left-right, top-down by increasing self-confidence (probability of belonging to the given label), denoted conf in teal. The label with the largest predicted probability is in green. Overt errors are in red.
+Label errors of the original MNIST **train** dataset identified algorithmically using cleanlab. Depicts the 24 least confident labels, ordered left-right, top-down by increasing self-confidence (probability of belonging to the given label), denoted conf in teal. The label with the largest predicted probability is in green. Overt errors are in red.
 
  
 ``cleanlab`` Generality: View performance across 4 distributions and 9 classifiers.
 -----------------------------------------------------------------------------------
 
-We use ``cleanlab`` to automatically learn with noisy labels regardless of dataset distribution or classifier. 
+Use ``cleanlab`` to learn with noisy labels regardless of dataset distribution or classifier. 
 
 .. figure:: https://raw.githubusercontent.com/cgnorthcutt/cleanlab/master/img/demo_cleanlab_across_datasets_and_classifiers.png
    :align: center
    :alt: Image depicting generality of cleanlab across datasets and classifiers 
 
-Each figure depicts the decision boundary learned using ``cleanlab.classification.LearningWithNoisyLabels`` in the presence of extreme (~35%) label errors. Label errors are circled in green. Label noise is class-conditional (not simply uniformly random). Columns are organized by the classifier used, except the left-most column which depicts the ground-truth dataset distribution. Rows are organized by dataset used. A matrix characterizing the label noise for the first row is shown below. 
+Each sub-figure in the figure above depicts the decision boundary learned using ``cleanlab.classification.LearningWithNoisyLabels`` in the presence of extreme (\~35%) label errors. Label errors are circled in green. Label noise is class-conditional (not simply uniformly random). Columns are organized by the classifier used, except the left-most column which depicts the ground-truth dataset distribution. Rows are organized by dataset used.
+
+The code to reproduce this figure is available `here <https://github.com/cgnorthcutt/cleanlab/blob/master/examples/classifier_comparison.ipynb>`__.
 
 Each figure depicts accuracy scores on a test set as decimal values: 
 
@@ -139,11 +223,9 @@ s=2     0.12  0.04  0.64  0.38
 s=3     0.11  0.08  0.05  0.54
 ======  ====  ====  ====  ====
 
-The code to reproduce this figure is available `here <https://github.com/cgnorthcutt/cleanlab/blob/master/examples/classifier_comparison.ipynb>`__.
-
 
 Get started with easy, quick examples.
---------------------------------------
+======================================
 
 New to **cleanlab**? Start with:
 
@@ -188,13 +270,13 @@ model into a Python class that inherits the
    class YourFavoriteModel(BaseEstimator): # Inherits sklearn base classifier
        def __init__(self, ):
            pass
-       def fit(self, X, y, sample_weight = None):
+       def fit(self, X, y, sample_weight=None):
            pass
        def predict(self, X):
            pass
        def predict_proba(self, X):
            pass
-       def score(self, X, y, sample_weight = None):
+       def score(self, X, y, sample_weight=None):
            pass
            
    # Now you can use your model with `cleanlab`. Here's one example:
@@ -203,7 +285,7 @@ model into a Python class that inherits the
    lnl.fit(train_data, train_labels_with_errors)
 
 Want to see a working example? `Here’s a compliant PyTorch MNIST CNN class <https://github.com/cgnorthcutt/cleanlab/blob/master/cleanlab/models/mnist_pytorch.py#L28>`__
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 As you can see
 `here <https://github.com/cgnorthcutt/cleanlab/blob/master/cleanlab/models/mnist_pytorch.py#L28>`__,
@@ -221,10 +303,10 @@ into a ``scikit-learn`` compliant model.
 
 
 Documentation by Example
-------------------------
+========================
 
 ``cleanlab`` Core Package Components
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+------------------------------------
 
 1. **cleanlab/classification.py** - The LearningWithNoisyLabels() class for learning with noisy labels.
 2. **cleanlab/latent_algebra.py** -	Equalities when noise information is known.
@@ -236,45 +318,43 @@ Documentation by Example
 Many of these methods have default parameters that won’t be covered
 here. Check out the method docstrings for full documentation.
 
-Multiclass learning with noisy labels (in **3** lines of code):
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-**rankpruning** is a fast, general, robust algorithm for multiclass
-learning with noisy labels. It adds minimal overhead, needing only
-*O(nm2)* time for n training examples and m classes, works with any
-classifier, and is easy to use. Here is the example from above, with
-added commments for clarity.
+Methods to Standardize Research with Noisy Labels
+-------------------------------------------------
+
+``cleanlab`` supports a number of functions to generate noise for benchmarking and standardization in research. This next example shows how to generate valid, class-conditional, unformly random noisy channel matrices:
 
 .. code:: python
+
+    # Generate a valid (necessary conditions for learnability are met) noise matrix for any trace > 1
+    from cleanlab.noise_generation import generate_noise_matrix_from_trace
+    noise_matrix=generate_noise_matrix_from_trace(
+        K=number_of_classes, 
+        trace=float_value_greater_than_1_and_leq_K,
+        py=prior_of_y_actual_labels_which_is_just_an_array_of_length_K,
+        frac_zero_noise_rates=float_from_0_to_1_controlling_sparsity,
+    )
+
+    # Check if a noise matrix is valid (necessary conditions for learnability are met)
+    from cleanlab.noise_generation import noise_matrix_is_valid
+    is_valid=noise_matrix_is_valid(noise_matrix, prior_of_y_which_is_just_an_array_of_length_K)
+
+For a given noise matrix, this example shows how to generate noisy labels. Methods can be seeded for reproducibility.
+
+.. code:: python
+
+    # Generate noisy labels using the noise_marix. Guarantees exact amount of noise in labels.
+    from cleanlab.noise_generation import generate_noisy_labels
+    s_noisy_labels = generate_noisy_labels(y_hidden_actual_labels, noise_matrix)
    
-   # LearningWithNoisyLabels implements a faster,
-   # cross-platform and more-compatible version of the RankPruning
-   # algorithm for learning with noisy labels. Unlike the original
-   # algorithm which only worked for binary classification,
-   # LearningWithNoisyLabels generalizes the theory and algorithms
-   # of RankPruning for any number of classes.
-   from cleanlab.classification import LearningWithNoisyLabels
-   # LearningWithNoisyLabels uses logreg by default, so this is unnecessary. 
-   # We include it here for clarity, but this step is omitted below.
-   from sklearn.linear_model import LogisticRegression as logreg
+    # This package is a full of other useful methods for learning with noisy labels.
+    # The tutorial stops here, but you don't have to. Inspect method docstrings for full docs.
 
-   # 1.
-   # Wrap around any classifier. Yup, neural networks work, too.
-   lnl = LearningWithNoisyLabels(clf=logreg()) 
 
-   # 2.
-   # X_train is numpy matrix of training examples (integers for large data)
-   # train_labels_with_errors is a numpy array of labels of length n (# of examples), usually denoted 's'.
-   lnl.fit(X_train, train_labels_with_errors) 
+Estimate the confident joint, the latent noisy channel matrix, *P(s \| y)* and inverse, *P(y \| s)*, the latent prior of the unobserved, actual true labels, *p(y)*, and the predicted probabilities.
+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-   # 3.
-   # Estimate the predictions you would have gotten by training with *no* label errors.
-   predicted_test_labels = lnl.predict(X_test)
-
-Estimate the confident joint, the latent noisy channel matrix, *P(s \| y)* and inverse, *P(y \| s)*, the latent prior of the unobserved, actual true labels, *p(y)*, and the predicted probabilities.:
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-where *s* denotes a random variable that represents the observed, noisy
+*s* denotes a random variable that represents the observed, noisy
 label and *y* denotes a random variable representing the hidden, actual
 labels. Both *s* and *y* take any of the m classes as values. The
 ``cleanlab`` package supports different levels of granularity for
@@ -293,7 +373,7 @@ labeled correctly or incorrectly for every pair of obseved and
 unobserved classes. The confident joint is an unnormalized estimate of
 the complete-information latent joint distribution, *Ps,y*. Most of the
 methods in the **cleanlab** package start by first estimating the
-*confident_joint*.
+*confident_joint*. You can learn more about this in the `confident learning paper <https://arxiv.org/abs/1911.00068>`__.
 
 Option 1: Compute the confident joint and predicted probs first. Stop if that’s all you need.
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -308,7 +388,7 @@ Option 1: Compute the confident joint and predicted probs first. Stop if that’
    confident_joint, psx = estimate_confident_joint_and_cv_pred_proba(
        X=X_train, 
        s=train_labels_with_errors,
-       clf = logreg(), # default, you can use any classifier
+       clf=logreg(), # default, you can use any classifier
    )
 
    # Estimate latent distributions: p(y) as est_py, P(s|y) as est_nm, and P(y|s) as est_inv
@@ -339,81 +419,21 @@ Option 3: Skip computing the predicted probabilities if you already have them.
        psx=psx,
    )
 
-Estimate label errors in a dataset:
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-With the ``cleanlab`` package, we can instantly fetch the indices of all
-estimated label errors, with nothing provided by the user except a
-classifier, examples, and their noisy labels. Like the previous example,
-there are various levels of granularity.
+Completely characterize label noise in a dataset:
+-------------------------------------------------
+
+The joint probability distribution of noisy and true labels, *P(s,y)*, completely characterizes label noise with a class-conditional *m x m* matrix. 
 
 .. code:: python
 
-   from cleanlab.pruning import get_noise_indices
-   # We computed psx, est_inv, confident_joint in the previous example.
-   label_errors = get_noise_indices(
-       s=train_labels_with_errors, # required
-       psx=psx, # required
-       inverse_noise_matrix=est_inv, # not required, include to avoid recomputing
-       confident_joint=confident_joint, # not required, include to avoid recomputing
-   )
+    from cleanlab.latent_estimation import estimate_joint
+    joint = compute_confident_joint(
+        s=noisy_labels,
+        psx=probabilities,
+        confident_joint=None,  # Provide if you have it already
+    )
 
-Estimate the latent joint probability distribution matrix of the noisy and true labels, *P(s,y)*:
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-To compute *P(s,y)*, the complete-information
-distribution matrix that captures the number of pairwise label flip
-errors when multipled by the total number of examples as *n* P(s,y)*.
-Using `cleanlab.latent_estimation.calibrate_confident_joint`, 
-this method guarantees the rows of *P(s,y)* correctly sum to *p(s)*, 
-and the entire matrix sums to 1.
-
-This method occurs when hyperparameter prune_count_method =
-‘inverse_nm_dot_s’ in LearningWithNoisyLabels.fit() and get_noise_indices().
-
-.. code:: python
-
-   from cleanlab.latent_estimation import estimate_confident_joint_from_probabilities
-   joint = estimate_confident_joint_from_probabilities(s=noisy_labels, psx=probabilities)
-
-If you already have the confident joint, then you can quickly
-estimate the complete joint distribution of label noise by:
-
-.. code:: python
-
-   from cleanlab.latent_estimation import estimate_joint
-   joint = estimate_joint(confident_joint=cj, s=noisy_labels, psx=probabilities)
-
-Generate valid, class-conditional, unformly random noisy channel matrices:
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-.. code:: python
-
-   # Generate a valid (necessary conditions for learnability are met) noise matrix for any trace > 1
-   from cleanlab.noise_generation import generate_noise_matrix_from_trace
-   noise_matrix = generate_noise_matrix_from_trace(
-       K = number_of_classes, 
-       trace = float_value_greater_than_1_and_leq_K,
-       py = prior_of_y_actual_labels_which_is_just_an_array_of_length_K,
-       frac_zero_noise_rates = float_from_0_to_1_controlling_sparsity,
-   )
-
-   # Check if a noise matrix is valid (necessary conditions for learnability are met)
-   from cleanlab.noise_generation import noise_matrix_is_valid
-   is_valid = noise_matrix_is_valid(noise_matrix, prior_of_y_which_is_just_an_array_of_length_K)
-
-Support for numerous *weak supervision* and *learning with noisy labels* functionalities:
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-.. code:: python
-
-   # Generate noisy labels using the noise_marix. Guarantees exact amount of noise in labels.
-   from cleanlab.noise_generation import generate_noisy_labels
-   s_noisy_labels = generate_noisy_labels(y_hidden_actual_labels, noise_matrix)
-
-   # This package is a full of other useful methods for learning with noisy labels.
-   # The tutorial stops here, but you don't have to. Inspect method docstrings for full docs.
-   
 
 The Polyplex
 ------------
@@ -427,4 +447,4 @@ Polyplices <https://github.com/cgnorthcutt/cleanlab/blob/master/cleanlab/polyple
 License
 -------
 
-Copyright (c) 2017-2019 Curtis Northcutt. Released under the MIT License. See `LICENSE <https://github.com/cgnorthcutt/cleanlab/blob/master/LICENSE>`__ for details.
+Copyright (c) 2017-2020 Curtis Northcutt. Released under the MIT License. See `LICENSE <https://github.com/cgnorthcutt/cleanlab/blob/master/LICENSE>`__ for details.

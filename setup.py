@@ -1,9 +1,10 @@
 # Written by Curtis G. Northcutt
 
 # For pypi upload
-# 0, python setup.py check -r -s
+# 0. python setup.py check -r -s
+# 0. rm -rf dist build
 # 1. python setup.py sdist bdist_wheel --universal
-# 2. twine upload dist/*
+# 2. python3 -m twine upload dist/*
 
 from setuptools import setup, find_packages
 # To use a consistent encoding
@@ -24,7 +25,8 @@ setup(
     version=__version__,
     license='MIT',
     long_description=long_description,
-    description = 'The Python package for cleaning and learning with noisy labels. Works for all noisy label distributions, datasets, and models.',
+    long_description_content_type='text/x-rst',
+    description = 'Find label errors in datasets, weak supervision, and learning with noisy labels. Works for all datasets and models.',
     url = 'https://github.com/cgnorthcutt/cleanlab',
     author = 'Curtis G. Northcutt',
     author_email = 'cgn@mit.edu',
@@ -44,6 +46,7 @@ setup(
       'Programming Language :: Python :: 3.4',
       'Programming Language :: Python :: 3.5',
       'Programming Language :: Python :: 3.6',
+      'Programming Language :: Python :: 3.7',
 
       'Programming Language :: Python',
       'Topic :: Software Development',

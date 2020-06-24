@@ -5,6 +5,8 @@ branch = True
 omit =
     # omit this single file
     cleanlab/models/mnist_pytorch.py
+    cleanlab/models/cifar_cnn.py
+    cleanlab/models/fasttext.py
 
 [report]
 # Regexes for lines to exclude from consideration
